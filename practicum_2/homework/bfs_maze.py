@@ -1,4 +1,5 @@
 from time import perf_counter
+from queue import Queue
 
 
 class Maze:
@@ -38,10 +39,28 @@ class Maze:
 
 def solve(maze: Maze) -> None:
     path = ""  # solution as a string made of "L", "R", "U", "D"
+    possible_moves = ("L", "R", "U", "D")
 
-    ##########################
-    ### PUT YOUR CODE HERE ###
-    ##########################
+    queue = Queue()
+    queue.put((0, maze.start_j, path))
+
+    visited = set()
+    visited.add((0, maze.start_j))
+
+    while not queue.empty():
+        i_coord, j_coord, curr_path = queue.get()
+
+        if maze.list_view[i_coord][j_coord] == "X":
+            path = curr_path
+            break
+        else:
+            for move in possible_moves:
+                next_coord = _shift_coordinate(i_coord, j_coord, move)
+
+                if 0 <= next_coord[0] <= len(maze.list_view) and 0<= next_coord[1] <= len(maze.list_view):
+                     if maze.list_view[next_coord[0]][next_coord[1]] != "#" and next_coord not in visited:
+                        visited.add(next_coord)
+                        queue.put((next_coord[0], next_coord[1], curr_path + move))
 
     print(f"Found: {path}")
     maze.print(path)
@@ -60,7 +79,7 @@ def _shift_coordinate(i: int, j: int, move: str) -> tuple[int, int]:
 
 
 if __name__ == "__main__":
-    maze = Maze.from_file("practicum_2/homework/maze_2.txt")
+    maze = Maze.from_file("maze_2.txt")
     t_start = perf_counter()
     solve(maze)
     t_end = perf_counter()
